@@ -4,6 +4,7 @@ class LanguageController < ApplicationController
   no_login_required
   
   def set_lang
+    # setting up the :language session variable which will be referenced in the tags
     if params[:lang].downcase == 'reset'
       session[:language] = nil
     else
