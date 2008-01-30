@@ -1,0 +1,48 @@
+= Translator Extension
+
+Created By: Phil Burrows, January 2008
+-------------------------
+peburrows@gmail.com
+http://philburrows.com
+http://svn.philburrows.com/radiant-extensions/translator
+-------------------------
+
+== Description
+
+This extension allows for different page parts to be rendered
+depending on the user's Accept-Language header.
+
+== Disclaimer
+
+This extension works well for me, but YMMV.
+
+== Dependencies
+
+* None, really
+
+== Usage
+
+In the pages you wish to have different languages available,
+simply create a page part with a two letter language abbreviation
+suffix for every part you wish to have available in multiple languages.
+
+NOTE: the default language is english, so page parts without the
+two-letter language suffix will be considered english.
+
+Examples:
+---------
+Page Parts:
+  'body' (English)
+  'body_de' (German translation)
+  'body_fr' (French translation)
+  
+  'sidebar' (English)
+  'sidebar_de' (German translation)
+  'sidebar_fr' (French translation)
+
+Then, in your layout, simply use the translator tags the same way you would use the standard Radiant content tag
+
+<r:translator:content name="body" />
+<r:translator:content name="sidebar" inherit="true" />
+
+each of these will render the appropriate page part, determined by the browser's Accept-Language
