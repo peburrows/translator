@@ -15,14 +15,24 @@ module TranslatorTags
     
     *Usage:*
     <pre><code><r:translator:title /></code></pre>
+    
+    *Then in a config page part do the following*
+    <pre><code>
+    translator:
+      es:
+        title: éste es el título
+      de:
+        title: dieses ist der titel
+    </pre></code>
   }
   tag 'translator:title' do |tag|
     page = tag.locals.page
     title = page.title
-    config_content = page.render_part(:translator_config)
+    config_content = page.render_part(:config)
     unless config_content.blank?
       lang = language(tag)
       config = YAML::load(config_content)
+      config = (config.blank? || config['translator'].blank?) ? {} : config['translator']
       if config[lang]
         config[lang]['title'].blank? ? page.title : config[lang]['title']
       else
@@ -48,25 +58,8 @@ module TranslatorTags
   }
   tag 'translator:content' do |tag|
     page = tag.locals.page
-    lang = language(tag)
-    suffix = lang.blank? ? "" : "_#{lang}"
-    # # this is where we need to grab the Accept-Language
-    # request = tag.globals.page.request
-    # lang = request.env['HTTP_ACCEPT_LANGUAGE']
-    # 
-    # # grab the two letter abbreviation -- some browsers pass multiple languages
-    # m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
-    # if m && !request.session[:language]
-    #   lang = m.captures.first.downcase
-    # else
-    #   # english is set as the default
-    #   lang = request.session[:language] || "en"
-    # end
-    # 
-    # logger.error(request.session)
-    # 
-    # # and now the part's suffix will be determined by the accept-language
-    # suffix = lang.match(/^en/i) ? "" : "_#{lang}"
+    
+    suffix = suffixize(language(tag))
     
     base_part_name = tag_part_name(tag)
     part_name = base_part_name + "#{suffix}"
@@ -104,23 +97,26 @@ protected
 
   def language(tag)
     # this is where we need to grab the Accept-Language
-     request = tag.globals.page.request
-     lang = request.env['HTTP_ACCEPT_LANGUAGE']
+    request = tag.globals.page.request
+    lang = request.env['HTTP_ACCEPT_LANGUAGE']
 
-     # grab the two letter abbreviation -- some browsers pass multiple languages
-     m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
-     if m && !request.session[:language]
-       lang = m.captures.first.downcase
-     else
-       # english is set as the default
-       lang = request.session[:language] || "en"
-     end
+    # grab the two letter abbreviation -- some browsers pass multiple languages, but we just want the first one (for now)
+    # there's quite a bit more we could do with this, like falling back to the other languages that the user-agent requests
+    # for now, it's a simple hit or miss on the first in the series
+    m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
+    if m && !request.session[:language]
+      lang = m.captures.first.downcase
+    else
+      # english is set as the default
+      lang = request.session[:language] || "en"
+    end
+    
+    # send back the two-letter abbreviation, or a blank string if it's english
+    lang.match(/^en/i) ? "" : lang
+  end
 
-     logger.error(request.session)
-
-     # and now the part's suffix will be determined by the accept-language
-     # suffix = lang.match(/^en/i) ? "" : "_#{lang}"
-     lang.match(/^en/i) ? "" : lang
+  def suffixize(lang)
+    lang.blank? ? "" : "_#{lang}"
   end
 
 end

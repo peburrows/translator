@@ -3,7 +3,7 @@
 Created By: Phil Burrows, January 2008
 peburrows@gmail.com
 http://philburrows.com
-http://svn.philburrows.com/radiant-extensions/translator
+http://dev.philburrows.com/svn/radiant-extensions/translator/trunk
 
 -------------------------
 
@@ -46,3 +46,14 @@ Then, in your layout, simply use the translator tags the same way you would use 
 <r:translator:content name="sidebar" inherit="true" />
 
 each of these will render the appropriate page part, determined by the browser's Accept-Language
+
+You can also take advantage of the <r:translator:title /> tag which will render the normal page title by default,
+but will first check for a config page part that specifies other titles for the different languages.
+Sample config page part -->
+
+translator:
+  es:
+    title: éste es el título
+  de:
+    title: dieses ist der titel
+
