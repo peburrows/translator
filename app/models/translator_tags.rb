@@ -1,12 +1,39 @@
 module TranslatorTags
   include Radiant::Taggable
   
+  desc %{
+    All @translator@ tags live inside this one
+  }
   tag 'translator' do |tag|
     tag.expand
   end
   
+  desc %{
+    Works just like the standard Radiant tag @<r:title />@
+    
+    However, this one looks for a page part named translator_config and spits out the page's title accordingly.
+    
+    *Usage:*
+    <pre><code><r:translator:title /></code></pre>
+  }
+  tag 'translator:title' do |tag|
+    page = tag.locals.page
+    title = page.title
+    config_content = page.render_part(:translator_config)
+    unless config_content.blank?
+      lang = language(tag)
+      config = YAML::load(config_content)
+      if config[lang]
+        config[lang]['title'].blank? ? page.title : config[lang]['title']
+      else
+        page.title
+      end
+    else
+      page.title
+    end
+  end
   
-  # we're ripping this from Radiant's StandardTags module and molding it to fit our needs
+  # this is heavily based on Radaint's standard <r:content /> tag, but molded to fit our localization needs
   desc %{
     Works just like the standard Radiant tag @<r:content />@
     
@@ -21,24 +48,25 @@ module TranslatorTags
   }
   tag 'translator:content' do |tag|
     page = tag.locals.page
-    
-    # this is where we need to grab the Accept-Language
-    request = tag.globals.page.request
-    lang = request.env['HTTP_ACCEPT_LANGUAGE']
-    
-    # grab the two letter abbreviation -- some browsers pass multiple languages
-    m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
-    if m && !request.session[:language]
-      lang = m.captures.first.downcase
-    else
-      # english is set as the default
-      lang = request.session[:language] || "en"
-    end
-    
-    logger.error(request.session)
-    
-    # and now the part's suffix will be determined by the accept-language
-    suffix = lang.match(/^en/i) ? "" : "_#{lang}"
+    lang = language(tag)
+    suffix = lang.blank? ? "" : "_#{lang}"
+    # # this is where we need to grab the Accept-Language
+    # request = tag.globals.page.request
+    # lang = request.env['HTTP_ACCEPT_LANGUAGE']
+    # 
+    # # grab the two letter abbreviation -- some browsers pass multiple languages
+    # m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
+    # if m && !request.session[:language]
+    #   lang = m.captures.first.downcase
+    # else
+    #   # english is set as the default
+    #   lang = request.session[:language] || "en"
+    # end
+    # 
+    # logger.error(request.session)
+    # 
+    # # and now the part's suffix will be determined by the accept-language
+    # suffix = lang.match(/^en/i) ? "" : "_#{lang}"
     
     base_part_name = tag_part_name(tag)
     part_name = base_part_name + "#{suffix}"
@@ -70,6 +98,29 @@ module TranslatorTags
         part_page.render_part(part_name)
       end
     end
+  end
+  
+protected
+
+  def language(tag)
+    # this is where we need to grab the Accept-Language
+     request = tag.globals.page.request
+     lang = request.env['HTTP_ACCEPT_LANGUAGE']
+
+     # grab the two letter abbreviation -- some browsers pass multiple languages
+     m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
+     if m && !request.session[:language]
+       lang = m.captures.first.downcase
+     else
+       # english is set as the default
+       lang = request.session[:language] || "en"
+     end
+
+     logger.error(request.session)
+
+     # and now the part's suffix will be determined by the accept-language
+     # suffix = lang.match(/^en/i) ? "" : "_#{lang}"
+     lang.match(/^en/i) ? "" : lang
   end
 
 end
