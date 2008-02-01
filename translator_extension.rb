@@ -4,7 +4,7 @@ require_dependency 'application'
 class TranslatorExtension < Radiant::Extension
   version "0.1"
   description "Allows you to render your pages in different languages based upon the browser's Accept-Language."
-  url "http://philburrows.com"
+  url "http://dev.philburrows.com/svn/radiant-extensions/translator/trunk"
   
   define_routes do |map|
     map.connect 'language/set/:lang', :controller => 'language', :action => 'set_lang'
@@ -16,7 +16,6 @@ class TranslatorExtension < Radiant::Extension
   end
   
   def deactivate
-    # don't really need anything here
   end
   
 end
