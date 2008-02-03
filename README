@@ -25,6 +25,8 @@ This extension works well for me, but YMMV.
 In the pages you wish to have different languages available,
 simply create a page part with a two letter language abbreviation
 suffix for every part you wish to have available in multiple languages.
+Defaults to English if a page part is not defined that matches the
+user's requested language.
 
 NOTE: the default language is english, so page parts without the
 two-letter language suffix will be considered english.
@@ -56,4 +58,15 @@ translator:
     title: éste es el título
   de:
     title: dieses ist der titel
+
+Also, if you wish to allow the user to explicitly set their language
+(instead of relying on the browser sending the proper Accept-Language header),
+this extension utilizes session variables (and an included controller to
+set those variables) which override the Accept-Language header.
+Just hit '/language/set/:lang' and replace :lang with the two-letter language
+abbreviation. Also, hitting '/language/set/reset' will clear the session
+variable and fall-back to relying on the Accept-Language header.
+
+TODO:
+* allow setting of the default language to something other than English
 
