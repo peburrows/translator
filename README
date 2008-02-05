@@ -69,4 +69,5 @@ variable and fall-back to relying on the Accept-Language header.
 
 TODO:
 * allow setting of the default language to something other than English
+* support the four letter language abbreviations in the form of lang-REGION (en-US, fr-CA, fr-FR, etc.)
 
