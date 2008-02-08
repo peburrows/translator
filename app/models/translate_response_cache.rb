@@ -81,12 +81,12 @@ class TranslateResponseCache
         file_path = page_cache_path(path)
         if metadata = read_metadata(path)
           response.headers.merge!(metadata['headers'] || {})
-          if client_has_cache?(metadata, request)
-            # we need to see if this is really what we want to do. it causes issues with localization
-            # since I'm being "smart" and sending the same url. ugh. I might be too "smart" for my
-            # own good on this one
-            response.headers.merge!('Status' => '200 OK')
-          elsif use_x_sendfile
+          # if client_has_cache?(metadata, request)
+          #   # we need to see if this is really what we want to do. it causes issues with localization
+          #   # since I'm being "smart" and sending the same url. ugh. I might be too "smart" for my
+          #   # own good on this one
+          #   response.headers.merge!('Status' => '200 OK')
+          if use_x_sendfile
             response.headers.merge!('X-Sendfile' => "#{file_path}.data")
           else
             response.body = File.open("#{file_path}.data", "rb") {|f| f.read}
