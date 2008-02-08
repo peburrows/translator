@@ -14,11 +14,27 @@ class TranslatorExtension < Radiant::Extension
   
   define_routes do |map|
     map.connect 'language/set/:lang', :controller => 'language', :action => 'set_lang'
+    map.connect ':lang/*url',
+                :controller => 'site',
+                :action => 'show_page',
+                :requirements => {
+                  :lang => /[a-zA-Z]{2}/
+                }
   end
   
   def activate
     Page.send :include, TranslatorTags
-    SiteController.class_eval{session :disabled => false}
+    SiteController.class_eval{
+      session :disabled => false
+      before_filter :set_up_lang
+    private
+      def set_up_lang
+        logger.error("we're setting the language \n\n\n#{params[:lang]}\n\n\n")
+        if params[:lang]
+          session[:language] = params[:lang]
+        end
+      end
+    }
     TranslateResponseCache    
   end
   
