@@ -13,6 +13,7 @@ class TranslatorExtension < Radiant::Extension
   def activate
     Page.send :include, TranslatorTags
     SiteController.class_eval{session :disabled => false}
+    TranslateResponseCache    
   end
   
   def deactivate
