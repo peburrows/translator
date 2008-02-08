@@ -26,11 +26,12 @@ module TranslatorTags
     </pre></code>
   }
   tag 'translator:title' do |tag|
+    request = tag.globals.page.request
     page = tag.locals.page
     title = page.title
     config_content = page.render_part(:config)
     unless config_content.blank?
-      lang = language(tag)
+      lang = request.language
       config = YAML::load(config_content)
       config = (config.blank? || config['translator'].blank?) ? {} : config['translator']
       if config[lang]
@@ -57,9 +58,10 @@ module TranslatorTags
     If the Language-Accept header was set to fr-ca (French, Canadian), it would render the "body_fr" content part.
   }
   tag 'translator:content' do |tag|
+    req = tag.globals.page.request
     page = tag.locals.page
     
-    suffix = suffixize(language(tag))
+    suffix = req.suffixize(req.language)
     
     base_part_name = tag_part_name(tag)
     part_name = base_part_name + "#{suffix}"
@@ -93,30 +95,4 @@ module TranslatorTags
     end
   end
   
-protected
-
-  def language(tag)
-    # this is where we need to grab the Accept-Language
-    request = tag.globals.page.request
-    lang = request.env['HTTP_ACCEPT_LANGUAGE']
-
-    # grab the two letter abbreviation -- some browsers pass multiple languages, but we just want the first one (for now)
-    # there's quite a bit more we could do with this, like falling back to the other languages that the user-agent requests
-    # for now, it's a simple hit or miss on the first in the series
-    m = lang.match(/^([a-zA-Z][a-zA-Z])(.)+$/)
-    if m && !request.session[:language]
-      lang = m.captures.first.downcase
-    else
-      # english is set as the default
-      lang = request.session[:language] || "en"
-    end
-    
-    # send back the two-letter abbreviation, or a blank string if it's english
-    lang.match(/^en/i) ? "" : lang
-  end
-
-  def suffixize(lang)
-    lang.blank? ? "" : "_#{lang}"
-  end
-
 end
