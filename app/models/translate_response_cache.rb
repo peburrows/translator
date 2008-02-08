@@ -1,6 +1,6 @@
 class TranslateResponseCache
 
-  [SiteController, Admin::AbstractModelController].each do |klass|
+  [SiteController, Admin::AbstractModelController, Admin::PageController].each do |klass|
     klass.class_eval {
       # yes, i know this is really bad, but we need it. otherwise, we'll have to reinvent the wheel
       around_filter :do_something_bad
@@ -45,6 +45,13 @@ class TranslateResponseCache
       end
       # send back the two-letter abbreviation, or a blank string if it's english
       lang.match(Regexp.new("^#{TranslatorExtension.defaults[:lang]}")) ? "" : lang
+    end
+
+    def language_full
+      lang = self.env['HTTP_ACCEPT_LANGUAGE']
+      m = lang.match(/^[a-zA-Z]{2}(\-[a-zA-Z]{2})?/)
+      # return the four letter (or two if no four was found) language string or nil if nothing was found
+      m ? m[0] : nil
     end
 
     def suffixize(lang)
