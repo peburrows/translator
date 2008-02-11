@@ -31,7 +31,7 @@ module TranslatorTags
     title = page.title
     config_content = page.render_part(:config)
     unless config_content.blank?
-      lang = request.language
+      lang = request.language.split('-').first
       config = YAML::load(config_content)
       config = (config.blank? || config['translator'].blank?) ? {} : config['translator']
       if config[lang]
@@ -61,11 +61,38 @@ module TranslatorTags
     req = tag.globals.page.request
     page = tag.locals.page
     
-    suffix = req.suffixize(req.language)
+    suffix = req.suffixize(req.language.split('-').first)
     
     base_part_name = tag_part_name(tag)
-    part_name = base_part_name + "#{suffix}"
+    # part_name = base_part_name + "#{suffix}"
 
+    render_translated_page_part(tag, page, req, base_part_name, suffix)
+  end
+  
+  tag 'translator:four' do |tag|
+    tag.expand
+  end
+  
+  tag 'translator:four:content' do |tag|
+    # here's where we'll render the content for the page
+    req = tag.globals.page.request
+    page = tag.locals.page
+    
+    suffix = req.suffixize(req.language)
+    base_part_name = tag_part_name(tag)
+    render_translated_page_part(tag, page, req, base_part_name, suffix)
+  end
+  
+  tag 'translator:four:title' do |tag|
+    'still needs to be implemented'
+  end
+  
+protected
+  def render_translated_page_part(tag, page, req, base_part_name, suffix)
+    part_name = base_part_name + suffix
+    
+    logger.error("\n\n\n\n\n::::::I am going to attempt to render the following part:::::  #{part_name}\n\n\n\n\n")
+    
     boolean_attr = proc do |attribute_name, default|
       attribute = (tag.attr[attribute_name] || default).to_s
       raise TagError.new(%{`#{attribute_name}' attribute of `content' tag must be set to either "true" or "false"}) unless attribute =~ /true|false/i
@@ -81,15 +108,19 @@ module TranslatorTags
     contextual = boolean_attr['contextual', true]
     if inherit and contextual
       if part_page.part(part_name).nil?
+        logger.error("\n\ncouldn't find a part with the name #{part_name}\n\n")
         part = part_page.part(base_part_name)
       else
+        logger.error("\n\nfound the part with the name #{part_name}\n\n")
         part = part_page.part(part_name)
       end
       page.render_snippet(part) unless part.nil?
     else
       if part_page.part(part_name).nil?
+        logger.error("\n\ncouldn't find a part with the name #{part_name}\n\n")
         part_page.render_part(base_part_name)
       else
+        logger.error("\n\nfound the part with the name #{part_name}\n\n")
         part_page.render_part(part_name)
       end
     end

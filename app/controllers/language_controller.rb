@@ -5,10 +5,10 @@ class LanguageController < ApplicationController
   
   def set_lang
     # setting up the :language session variable which will be referenced in the tags
-    if params[:lang].downcase == 'reset'
+    if params[:language].downcase == 'reset'
       session[:language] = nil
     else
-      session[:language] = params[:lang].downcase
+      session[:language] = params[:language].downcase
     end
     
     if !params[:from].blank?

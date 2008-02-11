@@ -8,17 +8,17 @@ class TranslatorExtension < Radiant::Extension
   
   # still plenty of work that needs to be done on this
   @@defaults = {
-    :lang => 'en'
+    :language => 'en-US'
   }
   cattr_accessor :defaults
   
   define_routes do |map|
-    map.connect 'language/set/:lang', :controller => 'language', :action => 'set_lang'
-    map.connect ':lang/*url',
+    map.connect 'language/set/:language', :controller => 'language', :action => 'set_lang'
+    map.connect ':language/*url',
                 :controller => 'site',
                 :action => 'show_page',
                 :requirements => {
-                  :lang => /[a-zA-Z]{2}/
+                  :language => /[a-zA-Z]{2}/
                 }
   end
   
@@ -29,9 +29,11 @@ class TranslatorExtension < Radiant::Extension
       before_filter :set_up_lang
     private
       def set_up_lang
-        logger.error("we're setting the language \n\n\n#{params[:lang]}\n\n\n")
-        if params[:lang]
-          session[:language] = params[:lang]
+        if params[:language]
+          # we want to save the four-letter language code, not just the two
+          # logger.error("we're setting the language \n\n\n#{params[:language]}\n\n\n")
+          # session[:language] = params[:language]
+          session[:language] = request.language
         end
       end
     }
