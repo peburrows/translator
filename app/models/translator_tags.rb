@@ -61,7 +61,11 @@ module TranslatorTags
     req = tag.globals.page.request
     page = tag.locals.page
     
-    suffix = req.suffixize(req.language.split('-').first)
+    unless req.language == TranslatorExtension.defaults[:language]
+      suffix = req.suffixize(req.language.split('-').first)
+    else
+      suffix = ""
+    end
     
     base_part_name = tag_part_name(tag)
     # part_name = base_part_name + "#{suffix}"
@@ -78,7 +82,12 @@ module TranslatorTags
     req = tag.globals.page.request
     page = tag.locals.page
     
-    suffix = req.suffixize(req.language)
+    unless req.language == TranslatorExtension.defaults[:language]
+      suffix = req.suffixize(req.language)
+    else
+      suffix = ""
+    end
+    
     base_part_name = tag_part_name(tag)
     render_translated_page_part(tag, page, req, base_part_name, suffix)
   end
