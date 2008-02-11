@@ -93,14 +93,33 @@ module TranslatorTags
   end
   
   tag 'translator:four:title' do |tag|
-    'still needs to be implemented'
+    gimme_the_translated_title(tag)
   end
   
 protected
+
+  def gimme_the_translated_title(tag)
+    # need to edit to work with the two-letter country codes
+    request = tag.globals.page.request
+    page = tag.locals.page
+    title = page.title
+    config_content = page.render_part(:config)
+    unless config_content.blank?
+      lang = request.language
+      config = YAML::load(config_content)
+      config = (config.blank? || config['translator'].blank?) ? {} : config['translator']
+      if config[lang]
+        config[lang]['title'].blank? ? page.title : config[lang]['title']
+      else
+        page.title
+      end
+    else
+      page.title
+    end
+  end
+
   def render_translated_page_part(tag, page, req, base_part_name, suffix)
     part_name = base_part_name + suffix
-    
-    logger.error("\n\n\n\n\n::::::I am going to attempt to render the following part:::::  #{part_name}\n\n\n\n\n")
     
     boolean_attr = proc do |attribute_name, default|
       attribute = (tag.attr[attribute_name] || default).to_s
@@ -117,19 +136,15 @@ protected
     contextual = boolean_attr['contextual', true]
     if inherit and contextual
       if part_page.part(part_name).nil?
-        logger.error("\n\ncouldn't find a part with the name #{part_name}\n\n")
         part = part_page.part(base_part_name)
       else
-        logger.error("\n\nfound the part with the name #{part_name}\n\n")
         part = part_page.part(part_name)
       end
       page.render_snippet(part) unless part.nil?
     else
       if part_page.part(part_name).nil?
-        logger.error("\n\ncouldn't find a part with the name #{part_name}\n\n")
         part_page.render_part(base_part_name)
       else
-        logger.error("\n\nfound the part with the name #{part_name}\n\n")
         part_page.render_part(part_name)
       end
     end
