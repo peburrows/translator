@@ -64,7 +64,7 @@ class TranslateResponseCache
       return proper_language(self.parameters[:language]) if self.parameters[:language]
       return session_lang = proper_language(self.session[:language]) if self.session[:language]
       
-      lang = self.env['HTTP_ACCEPT_LANGUAGE']
+      lang = self.env['HTTP_ACCEPT_LANGUAGE'] || ''
       m = lang.match(/^[a-zA-Z]{2}(\-[a-zA-Z]{2})?/)
 
       return TranslatorExtension.defaults[:language] unless m
