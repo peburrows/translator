@@ -102,6 +102,10 @@ class TranslateResponseCache
         end
       end
       
+      def page_cache_file(path)
+        name = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
+      end
+      
       # Reads a cached response from disk and updates a response object.
       def read_response(path, response, request)
         file_path = page_cache_path(path)
