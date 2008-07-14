@@ -11,7 +11,7 @@ module TranslatorTags
   desc %{
     Works just like the standard Radiant tag @<r:title />@
     
-    However, this one looks for a page part named translator_config and spits out the page's title accordingly.
+    However, this one looks for a page part named config and spits out the page's title accordingly.
     
     *Usage:*
     <pre><code><r:translator:title /></code></pre>
